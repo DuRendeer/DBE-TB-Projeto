@@ -1,22 +1,25 @@
-# Petshop E-commerce - Entrega Parcial 1
+# Petshop E-commerce API
 
 ## Informações do Projeto
 
 **Disciplina:** Desenvolvimento Back-End com PHP e Laravel  
 **Grupo:** Eduardo Sochodolak, Johann Matheus Pedroso da Silva, Alexsandro Lemos  
 **Tema:** E-commerce de Petshop com Sistema de Agendamento de Banho e Tosa  
+**Status:** Entrega 2 Concluída - API RESTful Completa
 
 ## Visão Geral
 
 Este projeto consiste em uma API RESTful desenvolvida em Laravel para um e-commerce de produtos para pets, integrado com um sistema de agendamento de serviços como banho e tosa. O sistema permite o cadastro de usuários, pets, produtos e agendamentos de serviços.
 
-## Funcionalidades Principais
+## Funcionalidades Implementadas
 
-- **E-commerce de Produtos:** Catálogo de produtos para pets organizados por categorias
-- **Sistema de Agendamento:** Agendamento de serviços de banho, tosa e cuidados veterinários
-- **Cadastro de Pets:** Registro detalhado dos animais de estimação dos usuários
-- **Gerenciamento de Pedidos:** Sistema completo de carrinho de compras e pedidos
-- **Área Administrativa:** Controle de agendamentos, produtos e usuários
+- **Sistema de Autenticação:** Registro, login e logout com Laravel Breeze + Sanctum
+- **API de Produtos:** CRUD completo com validação e relacionamentos
+- **API de Agendamentos:** Sistema completo protegido por autenticação
+- **Relacionamentos:** User, Pet, Product, Category, Service, Appointment
+- **Validação Robusta:** Validação de dados em todas as operações
+- **Testes Automatizados:** 3 testes unitários + 5 testes de feature
+- **Segurança:** Middleware de autenticação e hash de senhas
 
 ## Modelagem de Dados
 
@@ -171,16 +174,34 @@ Este projeto consiste em uma API RESTful desenvolvida em Laravel para um e-comme
 
 ### Testando a API
 Após a instalação, você pode testar os endpoints:
-- `GET /api/welcome` - Informações do projeto
-- `GET /api/categories` - Lista de categorias
-- `GET /api/services` - Lista de serviços
+
+#### Autenticação
+- `POST /register` - Registro de usuário
+- `POST /login` - Login de usuário
+- `POST /logout` - Logout de usuário
+
+#### Produtos (Público)
+- `GET /api/products` - Listar produtos ativos
+- `GET /api/products/{id}` - Visualizar produto específico
+- `POST /api/products` - Criar produto
+- `PUT /api/products/{id}` - Atualizar produto
+- `DELETE /api/products/{id}` - Deletar produto
+
+#### Agendamentos (Autenticado)
+- `GET /api/appointments` - Listar agendamentos do usuário
+- `POST /api/appointments` - Criar novo agendamento
+- `GET /api/appointments/{id}` - Visualizar agendamento
+- `PUT /api/appointments/{id}` - Atualizar agendamento
+- `DELETE /api/appointments/{id}` - Cancelar agendamento
 
 ## Estrutura do Projeto
 
 ```
 app/
 ├── Http/Controllers/
-│   └── ApiController.php
+│   ├── ProductController.php
+│   ├── AppointmentController.php
+│   └── HelloController.php
 ├── Models/
 │   ├── User.php
 │   ├── Pet.php
@@ -193,22 +214,61 @@ app/
 │   └── CartItem.php
 database/
 ├── migrations/
-└── seeders/
-    ├── CategorySeeder.php
-    ├── ServiceSeeder.php
-    └── DatabaseSeeder.php
+├── seeders/
+│   ├── CategorySeeder.php
+│   ├── ServiceSeeder.php
+│   └── DatabaseSeeder.php
+└── factories/
+    ├── ProductFactory.php
+    ├── CategoryFactory.php
+    ├── PetFactory.php
+    ├── AppointmentFactory.php
+    └── ServiceFactory.php
+tests/
+├── Unit/
+│   ├── ProductTest.php
+│   └── UserTest.php
+└── Feature/
+    ├── ProductApiTest.php
+    └── AppointmentApiTest.php
 ```
 
-## Próximos Passos (Entrega 2)
+## Implementações por Entrega
 
-- Implementação completa dos CRUDs
-- Sistema de autenticação (Laravel Breeze/Sanctum)
-- Validação de dados robusta
-- Testes unitários e de feature
-- Middleware de autorização
-- Relacionamentos avançados
+### Entrega 1 (15/08/2025) - Modelagem e Estrutura
+- Repositório Git configurado
+- 10 migrations criadas com relacionamentos
+- 5 seeders funcionais com dados realistas
+- Primeira rota e controller (HelloController)
+- README com documentação completa da modelagem
+
+### Entrega 2 (07/09/2025) - CRUD, Autenticação e Testes
+- Laravel Breeze + Sanctum para autenticação
+- ProductController com CRUD completo e validação
+- AppointmentController com autenticação obrigatória
+- Relacionamentos implementados em todos os Models
+- 3 testes unitários (Product, User relationships)
+- 5 testes de feature (APIs Product e Appointment)
+- Factories para todos os Models de teste
+
+## Testes Implementados
+
+### Testes Unitários
+- **ProductTest:** Relacionamentos, casting de dados, validações
+- **UserTest:** Relacionamentos com pets e appointments, hash de senhas
+
+### Testes de Feature
+- **ProductApiTest:** CRUD completo da API de produtos
+- **AppointmentApiTest:** Autenticação, criação e listagem de agendamentos
+
+Para executar os testes:
+```bash
+php artisan test
+```
 
 ---
 
-**Data da Entrega:** 15/08/2024  
-**Status:** Entrega Parcial 1 - Modelagem e Estrutura Inicial Completa
+**Histórico de Entregas:**
+- **15/08/2025:** Entrega 1 - Modelagem e Estrutura Inicial Completa
+- **08/09/2025:** Entrega 2 - API RESTful com Autenticação e Testes Completos
+- **13/09/2025:** Apresentação Final - Demonstração Back-End

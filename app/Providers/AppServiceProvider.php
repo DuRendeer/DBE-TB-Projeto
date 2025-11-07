@@ -4,15 +4,24 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\ProductRepositoryInterface;
+use App\Repositories\ProductRepository;
+use App\Repositories\AppointmentRepositoryInterface;
+use App\Repositories\AppointmentRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     *
+     * Aplica Dependency Injection configurando os bindings
+     * das interfaces para suas implementações concretas.
      */
     public function register(): void
     {
-        //
+        // Repository Pattern - Dependency Injection
+        $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->bind(AppointmentRepositoryInterface::class, AppointmentRepository::class);
     }
 
     /**

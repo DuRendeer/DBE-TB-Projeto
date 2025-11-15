@@ -6,45 +6,43 @@ use App\Contracts\NotificationInterface;
 use App\Services\Notifications\EmailNotification;
 use App\Services\Notifications\SmsNotification;
 use App\Services\Notifications\PushNotification;
+use App\Services\Notifications\WhatsAppNotification;
 use InvalidArgumentException;
 
-/**
- * Factory Method Pattern
- *
- * Responsável por criar instâncias de diferentes tipos de notificações
- * sem expor a lógica de criação ao cliente.
- *
- * Benefícios:
- * - Desacopla a criação de objetos do código cliente
- * - Facilita a adição de novos tipos de notificação (Open/Closed Principle)
- * - Centraliza a lógica de criação em um único lugar (Single Responsibility)
- */
 class NotificationFactory
 {
-    /**
-     * Create a notification instance based on the channel type
-     *
-     * @param string $channel
-     * @return NotificationInterface
-     * @throws InvalidArgumentException
-     */
+    private static array $channels = [
+        'email' => EmailNotification::class,
+        'sms' => SmsNotification::class,
+        'push' => PushNotification::class,
+        'whatsapp' => WhatsAppNotification::class,
+    ];
+
     public static function create(string $channel): NotificationInterface
     {
-        return match (strtolower($channel)) {
-            'email' => new EmailNotification(),
-            'sms' => new SmsNotification(),
-            'push' => new PushNotification(),
-            default => throw new InvalidArgumentException("Notification channel '{$channel}' is not supported."),
-        };
+        $channel = strtolower($channel);
+
+        if (!isset(self::$channels[$channel])) {
+            throw new InvalidArgumentException("Notification channel '{$channel}' is not supported.");
+        }
+
+        $class = self::$channels[$channel];
+        return new $class();
     }
 
-    /**
-     * Get all available notification channels
-     *
-     * @return array
-     */
+    public static function createMultiple(array $channels): array
+    {
+        return array_map(fn($channel) => self::create($channel), $channels);
+    }
+
     public static function getAvailableChannels(): array
     {
-        return ['email', 'sms', 'push'];
+        return array_keys(self::$channels);
+    }
+
+    public static function registerChannel(string $name, string $class): void
+    {
+        self::$channels[strtolower($name)] = $class;
     }
 }
+

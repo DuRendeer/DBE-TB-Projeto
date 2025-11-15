@@ -63,6 +63,7 @@ class NotificationFactoryTest extends TestCase
         $this->assertContains('email', $channels);
         $this->assertContains('sms', $channels);
         $this->assertContains('push', $channels);
-        $this->assertCount(3, $channels);
+        $this->assertContains('whatsapp', $channels);
+        $this->assertCount(4, $channels);
     }
 }

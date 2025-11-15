@@ -8,43 +8,39 @@ use App\Factories\NotificationFactory;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
-/**
- * CQRS Command Handler - Update Appointment Status
- */
 class UpdateAppointmentStatusHandler
 {
-    /**
-     * Handle the command
-     *
-     * @throws InvalidArgumentException
-     */
+    private const VALID_STATUSES = [
+        'pending', 'confirmed', 'in_progress', 'completed', 'cancelled'
+    ];
+
     public function handle(UpdateAppointmentStatusCommand $command): Appointment
     {
-        // Valida o comando
-        $errors = $command->validate();
-        if (!empty($errors)) {
-            throw new InvalidArgumentException(implode(', ', $errors));
-        }
+        $this->validate($command);
 
         return DB::transaction(function () use ($command) {
             $appointment = Appointment::findOrFail($command->appointmentId);
 
-            // Atualiza o status
-            $appointment->update($command->toArray());
+            $data = ['status' => $command->status];
+            if ($command->notes !== null) {
+                $data['notes'] = $command->notes;
+            }
 
-            // Carrega relacionamentos
+            $appointment->update($data);
             $appointment->load(['user', 'pet', 'service']);
-
-            // Envia notificação sobre mudança de status
             $this->sendStatusChangeNotification($appointment);
 
             return $appointment;
         });
     }
 
-    /**
-     * Send notification about status change
-     */
+    private function validate(UpdateAppointmentStatusCommand $command): void
+    {
+        if (!in_array($command->status, self::VALID_STATUSES)) {
+            throw new InvalidArgumentException('Invalid status. Valid options: ' . implode(', ', self::VALID_STATUSES));
+        }
+    }
+
     private function sendStatusChangeNotification(Appointment $appointment): void
     {
         try {

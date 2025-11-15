@@ -6,27 +6,22 @@ use App\Queries\GetProductsByCategoryQuery;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 
-/**
- * CQRS Query Handler - Get Products By Category
- */
 class GetProductsByCategoryHandler
 {
-    /**
-     * Handle the query
-     */
     public function handle(GetProductsByCategoryQuery $query): Collection
     {
         $builder = Product::with('category')
-            ->where($query->getFilters());
+            ->where('category_id', $query->categoryId);
 
-        // Aplica filtro de estoque mínimo se especificado
-        if ($query->hasMinStockFilter()) {
+        if ($query->activeOnly) {
+            $builder->where('active', true);
+        }
+
+        if ($query->minStock !== null) {
             $builder->where('stock_quantity', '>=', $query->minStock);
         }
 
-        // Aplica ordenação
-        $orderBy = $query->getOrderBy();
-        $builder->orderBy($orderBy['column'], $orderBy['direction']);
+        $builder->orderBy($query->orderBy ?? 'name', $query->orderDirection);
 
         return $builder->get();
     }
